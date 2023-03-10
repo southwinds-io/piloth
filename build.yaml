@@ -1,0 +1,125 @@
+---
+env:
+  # the application version
+  APP_VERSION: 1.0.0
+  # a unique build number
+  BUILD_VERSION: ${APP_VERSION}-${ARTISAN_REF}
+
+labels:
+  author: SouthWinds Tech Ltd
+  application: Pilot Host Controller
+  description: Agent for managing remote host configuration
+  architecture: AMD64
+
+functions:
+  - name: build-linux
+    description: builds the host pilot binary for the linux platform
+    env:
+      GOOS: linux
+    run:
+      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/linux/pilot -v
+
+  - name: build-windows
+    description: builds the host pilot binary for the windows platform
+    env:
+      GOOS: windows
+    run:
+      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/windows/pilot -v
+
+  - name: build-mac
+    description: builds the host pilot binary for the macos platform
+    env:
+      GOOS: darwin
+    run:
+      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/darwin/pilot -v
+
+  - name: build-arm
+    description: builds the host pilot binary for the linux platform
+    env:
+      GOOS: linux
+      GOARCH: arm
+      GOARM: 5
+    run:
+      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/arm/pilot -v
+
+  - name: build-with-profiling
+    description: builds the host pilot binary for the specified platform with the specified profile tag
+    run:
+      - go build -tags ${PROFILE_TAG} -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}-${PROFILE_TAG}'" -o ${BIN_PATH} -v
+
+  - name: build-linux-cpu
+    description: builds pilot for linux with CPU profiling
+    env:
+      BIN_PATH: bin/linux/pilot
+      PROFILE_TAG: cpu
+      GOOS: linux
+    run:
+      - $(build-with-profiling)
+
+  - name: build-mem-linux
+    description: builds pilot for linux with MEMORY profiling
+    env:
+      BIN_PATH: bin/linux/pilot
+      PROFILE_TAG: mem
+      GOOS: linux
+    run:
+      - $(build-with-profiling)
+
+  - name: build-cpu-darwin
+    env:
+      BIN_PATH: bin/darwin/pilot
+      PROFILE_TAG: cpu
+      GOOS: darwin
+    run:
+      - $(build-with-profiling)
+
+  - name: build-mem-darwin
+    env:
+      BIN_PATH: bin/darwin/pilot
+      PROFILE_TAG: mem
+      GOOS: darwin
+    run:
+      - $(build-with-profiling)
+
+  - name: analyse
+    run:
+      - go tool pprof --pdf ${BIN_PATH} ${PPROF_PATH} > ${PROFILE_TAG}.pdf
+
+  - name: analyse-cpu-linux
+    env:
+      BIN_PATH: bin/linux/pilot
+      PROFILE_TAG: cpu
+    run:
+      - go tool pprof --pdf ${BIN_PATH} ${PPROF_PATH} > ${PROFILE_TAG}.pdf
+
+  - name: analyse-mem-linux
+    env:
+      BIN_PATH: bin/linux/pilot
+      PROFILE_TAG: mem
+    run:
+      - go tool pprof --pdf ${BIN_PATH} ${PPROF_PATH} > ${PROFILE_TAG}.pdf
+
+profiles:
+  - name: linux
+    default: true
+    type: content/binary
+    license: AGPL 3
+    run:
+      - $(build-linux)
+    target: bin/linux
+
+  - name: mac
+    default: true
+    type: content/binary
+    license: AGPL 3
+    run:
+      - $(build-mac)
+    target: bin/darwin
+
+  - name: windows
+    type: content/binary
+    license: AGPL 3
+    run:
+      - $(build-windows)
+    target: bin/windows
+...
