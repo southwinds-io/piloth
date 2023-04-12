@@ -19,7 +19,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"southwinds.dev/artisan/core"
 	ctl "southwinds.dev/pilotctl/types"
@@ -60,7 +59,6 @@ func NewLaunchCmd() *LaunchCmd {
 }
 
 func (c *LaunchCmd) Run(_ *cobra.Command, _ []string) {
-	fmt.Println(*c.cveUploadDelayMins)
 	// collects device/host information
 	hostInfo, err := ctl.NewHostInfo()
 	if err != nil {
