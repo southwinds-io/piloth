@@ -52,7 +52,7 @@ func NewLaunchCmd() *LaunchCmd {
 	c.cmd.Flags().BoolVarP(&c.telemetry, "telemetry", "m", false, "enables the upload of telemetry information to pilot control")
 	c.cpu = c.cmd.Flags().Bool("cpu", false, "enables cpu profiling only; cannot profile memory")
 	c.mem = c.cmd.Flags().Bool("mem", false, "enables memory profiling only; cannot profile cpu")
-	c.insecureSkipVerify = *c.cmd.Flags().Bool("insecureSkipVerify", false, "disables verification of certificates presented by the server and host name in that certificate; in this mode, TLS is susceptible to machine-in-the-middle attacks unless custom verification is used.")
+	c.cmd.Flags().BoolVarP(&c.insecureSkipVerify, "insecureSkipVerify", "s", false, "disables verification of certificates presented by the server and host name in that certificate; in this mode, TLS is susceptible to machine-in-the-middle attacks unless custom verification is used.")
 	c.cmd.Flags().StringVar(&c.cvePath, "cve-path", "", "if set, uploads CVE reports in the specified path to pilot control")
 	c.cveUploadDelayMins = c.cmd.Flags().Int("cve-up-delay", 5, "the maximum upload delay (in minutes) which pilot can apply before uploading a CVE report")
 	c.cmd.Run = c.Run
