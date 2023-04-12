@@ -23,7 +23,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -82,7 +82,7 @@ func activate(options PilotOptions) {
 		// if no user key exists
 		if !UserKeyExist() {
 			// cannot continue
-			ErrorLogger.Printf("cannot launch pilot, missing activation key\n")
+			ErrorLogger.Printf("cannot launch pilot, missing user key\n")
 			os.Exit(1)
 		}
 		// otherwise, it can start the activation process
@@ -190,14 +190,25 @@ func requestAKey(clientKey userKeyInfo, options PilotOptions) (bool, error) {
 	}
 	req.Header.Add("Authorization", bearerToken.String())
 	req.Header.Add("Content-Type", "application/json")
-	resp, err := c.Do(req)
+	var resp *http.Response
+	resp, err = c.Do(req)
 	if err != nil {
-		return false, fmt.Errorf("cannot send http request: %s\n", err)
+		if IsDebug() {
+			if resp != nil {
+				var respBytes []byte
+				respBytes, err = json.MarshalIndent(resp, "", " ")
+				if err != nil {
+					ErrorLogger.Printf("cannot marshall activation key response: %s", err)
+				}
+				DebugLogger.Println(string(respBytes[:]))
+			}
+		}
+		return false, fmt.Errorf("cannot request activation key: %s\n", err)
 	}
-	if resp.StatusCode != http.StatusCreated {
-		return false, fmt.Errorf("activation http request failed with code %d: %s\n", resp.StatusCode, resp.Status)
+	if resp != nil && resp.StatusCode != http.StatusCreated {
+		return false, fmt.Errorf("activation key request failed with code %d: %s\n", resp.StatusCode, resp.Status)
 	}
-	ak, err := ioutil.ReadAll(resp.Body)
+	ak, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return false, fmt.Errorf("cannot read activation key from http response: %s\n", err)
 	}

@@ -125,3 +125,7 @@ func Proxy() func(*http.Request) (*url.URL, error) {
 	}
 	return proxy
 }
+
+func IsDebug() bool {
+	return len(os.Getenv("PILOT_DEBUG")) > 0
+}
