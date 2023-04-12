@@ -70,7 +70,9 @@ func NewPilotCtl(worker *Worker, options PilotOptions) (*PilotCtl, error) {
 		}
 		core.InfoLogger.Printf("trying to connect to control URI %s\n", uri)
 		// issue a http get to the unauthenticated root to check for a valid response
-		resp, _ := client.Get(uri, nil)
+		var resp *http.Response
+		resp, err = client.Get(uri, nil)
+		core.CheckErr(err, "cannot connect to control URI %s: %s", uri, err)
 		// if there is a response
 		if resp != nil {
 			// and the response is OK
