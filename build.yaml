@@ -16,22 +16,25 @@ functions:
     description: builds the host pilot binary for the linux platform
     env:
       GOOS: linux
+      GOARCH: amd64
     run:
-      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/linux/pilot -v
+      - go build -trimpath -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/linux/pilot -v
 
   - name: build-windows
     description: builds the host pilot binary for the windows platform
     env:
       GOOS: windows
+      GOARCH: amd64
     run:
-      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/windows/pilot -v
+      - go build -trimpath -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/windows/pilot -v
 
   - name: build-mac
     description: builds the host pilot binary for the macos platform
     env:
       GOOS: darwin
+      GOARCH: amd64
     run:
-      - go build -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/darwin/pilot -v
+      - go build -trimpath -ldflags="-X 'southwinds.dev/piloth/core.Version=${BUILD_VERSION}'" -o bin/darwin/pilot -v
 
   - name: build-arm
     description: builds the host pilot binary for the linux platform

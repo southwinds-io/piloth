@@ -191,6 +191,9 @@ func requestAKey(clientKey userKeyInfo, options PilotOptions) (bool, error) {
 	req.Header.Add("Authorization", bearerToken.String())
 	req.Header.Add("Content-Type", "application/json")
 	var resp *http.Response
+	if IsDebug() {
+		DebugLogger.Printf("requesting activation key from: %s/activation-key", clientKey.URI)
+	}
 	resp, err = c.Do(req)
 	if err != nil {
 		if IsDebug() {
